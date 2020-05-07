@@ -6,11 +6,13 @@ public class MouseManager : MonoBehaviour
 {
     public Camera cam;
     public float zoomstep;
-
+    public float scrollstep;
 
     private float minzoom = 0; 
     private float maxzoom = 10;
     private float currentzoom = 5;
+
+    
     
     // Start is called before the first frame update
     void Start()
@@ -27,19 +29,27 @@ public class MouseManager : MonoBehaviour
             SelectObject();
         }
         // Rightclick
-
+        if (Input.GetMouseButton(1))
+        {
+            MoveCamera();
+        }
         // Mousewheel
         Zoom();
     }
 
+    void MoveCamera()
+    {
+        Quaternion y_rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+        Vector3 mouseMovement = new Vector3(Input.GetAxis("Mouse X") * Time.deltaTime * scrollstep, 0, Input.GetAxis("Mouse Y") * Time.deltaTime * scrollstep);
+        cam.transform.position -= y_rotation * mouseMovement;
+    }
+
     void Zoom()
     {
-        Vector3 cam_pos = cam.transform.position - currentzoom * (cam.transform.localRotation * new Vector3(0, 0, zoomstep));
+        float lastzoom = currentzoom;
         //mouseScrollDelta.y is the amount of scrolling the mouse wheel forwards/backwards
         currentzoom = Mathf.Min(Mathf.Max(currentzoom + Input.mouseScrollDelta.y, minzoom), maxzoom);
-
-
-        cam.transform.position = cam_pos + currentzoom * (cam.transform.localRotation * new Vector3(0, 0, zoomstep));
+        cam.transform.position += (currentzoom - lastzoom) * (cam.transform.localRotation * new Vector3(0, 0, zoomstep));
     }
 
     void SelectObject()

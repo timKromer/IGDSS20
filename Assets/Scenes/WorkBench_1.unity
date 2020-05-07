@@ -235,6 +235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 512232609}
   zoomstep: 10
+  scrollstep: 20
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
