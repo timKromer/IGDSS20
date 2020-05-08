@@ -12,8 +12,9 @@ public class GameManager : MonoBehaviour
     public GameObject forest;
     public GameObject stone;
     public GameObject mountain;
+    public MouseManager mouse;
 
-    private float multiplier = 5;
+
     private float h_mult = 20;
 
     // Start is called before the first frame update
@@ -22,16 +23,20 @@ public class GameManager : MonoBehaviour
         //TODO: For each Pixel instantiate a tile
         // Tiles have to be placed in xz-plane
         // Tiles have to be placed in y-axis
-
+        //The Center of the map is at x=0 and z=0
+        float multiplier = 10;
+        float xOffset = -(multiplier/6f) * (heightmap.width/2f);
         for (int x = 1; x <= heightmap.width; x++)
         {
             for (int z = 1; z <= heightmap.height; z++)
             {
                 float height = heightmap.GetPixel(x - 1, z - 1).grayscale;
-                Instantiate(HeightToTile(height), new Vector3((heightmap.width/2 -x)*10 + (10/6f)*(x-1), h_mult*height, (z-heightmap.height/2)* 10 + 5 * (x % 2)), Quaternion.identity);
+                Instantiate(HeightToTile(height), new Vector3(xOffset + (heightmap.width/2 -x)* multiplier + (multiplier / 6f)*(x-1), h_mult*height, (z-heightmap.height/2)* multiplier + (multiplier/2) * (x % 2)), Quaternion.identity);
             }
         }
-        
+        float xLim = (heightmap.width / 2f + 0.5f) * multiplier - (heightmap.width-1)*(multiplier/12f);///12 because everything has to be halfed
+        float zLim = (heightmap.height / 2f) * multiplier;
+        mouse.camLimit = new Vector2(xLim, zLim);
     }
 
     GameObject HeightToTile(float height)
