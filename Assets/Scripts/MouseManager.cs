@@ -30,14 +30,17 @@ public class MouseManager : MonoBehaviour
         float distance = 0;
         if (zeroPlane.Raycast(ray, out distance))
         {
-            firstRadius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
+            firstRadius = Mathf.Tan(Mathf.Deg2Rad * (90 - cam.transform.eulerAngles.x)) * cam.transform.position.y;
+            //firstRadius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
             radius = firstRadius;
+
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        Zoom();
         //Leftklick
         if (Input.GetMouseButtonDown(0))
         {
@@ -53,7 +56,6 @@ public class MouseManager : MonoBehaviour
             RotateCamera();
         }
         // Mousewheel
-        Zoom();
         //Limits the CameraMovementSpace - The middle of the screen isnt allowed to got further than the last tile
         Vector3 scrollfactor = Quaternion.Euler(0, cam.transform.eulerAngles.y,0) * new Vector3(0, 0, radius);
         cam.transform.position = new Vector3(Mathf.Clamp(cam.transform.position.x, -camLimit.x -scrollfactor.x, camLimit.x - scrollfactor.x), cam.transform.position.y, Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z, camLimit.y - scrollfactor.z));
@@ -66,14 +68,13 @@ public class MouseManager : MonoBehaviour
     {
             //distance mod is a multiplier used for having the same camera-movement on the circle, independent of the circle distance
             //TODO CHECK IF NECASSARY
-            //float distance_mod = (firstRadius / firstRadius);
-            float mouse_x = Input.GetAxis("Mouse X") * Time.deltaTime * rotateSpeed;// * distance_mod;
+            float distance_mod = firstRadius / radius;
+            float mouse_x = Input.GetAxis("Mouse X") * Time.deltaTime * rotateSpeed * distance_mod;
             
             //center of rotation is on distance of radius in front of camera-middle
             Vector3 center = cam.transform.position + Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
             cam.transform.eulerAngles += new Vector3(0, mouse_x, 0);
             cam.transform.position = center - Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
-        
     }
 
     void MoveCamera()
@@ -86,12 +87,13 @@ public class MouseManager : MonoBehaviour
 
     void Zoom()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        float distance = 0;
-        if (zeroPlane.Raycast(ray, out distance))
-        {
-            radius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
-        }
+        //Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        //float distance = 0;
+        //if (zeroPlane.Raycast(ray, out distance))
+        //{
+            //radius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
+        radius = Mathf.Tan(Mathf.Deg2Rad * (90 -cam.transform.eulerAngles.x)) * cam.transform.position.y;
+        //}
         float lastzoom = currentzoom;
         //mouseScrollDelta.y is the amount of scrolling the mouse wheel forwards/backwards
         //TODO -> Boundaries for camera movement
