@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public Texture2D heightmap;
 
+    // The Prefabs used to create the Field
     public GameObject water;
     public GameObject sand;
     public GameObject grass;
@@ -14,31 +15,39 @@ public class GameManager : MonoBehaviour
     public GameObject mountain;
     public MouseManager mouse;
 
-
-    private float h_mult = 20;
+    // Sets the HeightScaling for the Interpretation of the heightmaps (max Value of Heightmap = 1)
+    public float h_mult = 20;
 
     // Start is called before the first frame update
     void Start()
     {
-        //TODO: For each Pixel instantiate a tile
-        // Tiles have to be placed in xz-plane
-        // Tiles have to be placed in y-axis
-        //The Center of the map is at x=0 and z=0
+        GenerateMap();
+    }
+
+    void GenerateMap()
+    {
+        // Where to set the Tiles
         float multiplier = 10;
-        float xOffset = -(multiplier/6f) * (heightmap.width/2f);
-        for (int x = 1; x <= heightmap.width; x++)
+        float xmult = (5 * multiplier / 6f);
+        // Border of the field (Center of BorderTiles)
+        float xLim = ((heightmap.height - 1) * (5f / 6f) * multiplier) / 2f;
+        float zLim = ((heightmap.height - 0.5f) * multiplier) / 2f;
+        //Set Tiles
+        for (int x = 0; x < heightmap.width; x++)
         {
-            for (int z = 1; z <= heightmap.height; z++)
+            for (int z = 0; z < heightmap.height; z++)
             {
                 float height = heightmap.GetPixel(x - 1, z - 1).grayscale;
-                Instantiate(HeightToTile(height), new Vector3(xOffset + (heightmap.width/2 -x)* multiplier + (multiplier / 6f)*(x-1), h_mult*height, (z-heightmap.height/2)* multiplier + (multiplier/2) * (x % 2)), Quaternion.identity);
+                float xpos = -xLim + (x) * xmult;
+                float zpos = -zLim + z * multiplier + ((multiplier / 2f) * (x % 2));
+                Instantiate(HeightToTile(height), new Vector3(xpos, h_mult * height, zpos), Quaternion.identity);
             }
         }
-        float xLim = (heightmap.width / 2f + 0.5f) * multiplier - (heightmap.width-1)*(multiplier/12f);///12 because everything has to be halfed
-        float zLim = (heightmap.height / 2f) * multiplier;
+        //This sets the size of the terrain
         mouse.camLimit = new Vector2(xLim, zLim);
     }
 
+    // Returns a Prefab depending on give height
     GameObject HeightToTile(float height)
     {
         if (height == 0)

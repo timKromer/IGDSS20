@@ -327,8 +327,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 512232609}
   zoomstep: 10
-  scrollstep: 100
-  rotateSpeed: 50
+  scrollstep: 10
+  rotationSpeed: 1
   camLimit: {x: 100, y: 100}
 --- !u!4 &834136087
 Transform:
@@ -530,7 +530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightmap: {fileID: 2800000, guid: 6c8b8b5dee9104b429f737ec1d927ec9, type: 3}
+  heightmap: {fileID: 2800000, guid: e78aeb62d2558404f9e4a0b2b2d6b52a, type: 3}
   water: {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
   sand: {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
   grass: {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c, type: 3}
@@ -539,6 +539,7 @@ MonoBehaviour:
   mountain: {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b,
     type: 3}
   mouse: {fileID: 834136086}
+  h_mult: 20
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0

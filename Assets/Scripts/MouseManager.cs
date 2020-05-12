@@ -7,7 +7,7 @@ public class MouseManager : MonoBehaviour
     public Camera cam;
     public float zoomstep = 10;
     public float scrollstep = 100;
-    public float rotateSpeed = 1;
+    public float rotationSpeed = 1;
 
     //Set by the gamemanager -> The borders of the map
     public Vector2 camLimit;
@@ -15,30 +15,24 @@ public class MouseManager : MonoBehaviour
     private float minzoom = 0; 
     private float maxzoom = 10;
     private float currentzoom = 5;
-    private float firstRadius = 0;
     private float radius;
-
-    // This is a plane marking y = 0 for rotating the camera
-    private Plane zeroPlane = new Plane(Vector3.up, Vector3.zero);
 
 
     // Start is called before the first frame update
     void Start()
     {
-
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        float distance = 0;
-        if (zeroPlane.Raycast(ray, out distance))
-        {
-            firstRadius = Mathf.Tan(Mathf.Deg2Rad * (90 - cam.transform.eulerAngles.x)) * cam.transform.position.y;
-            //firstRadius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
-            radius = firstRadius;
-
-        }
+        UpdateRadius();
     }
 
     // Update is called once per frame
     void Update()
+    {
+        HandleMouse();
+        //Allways Call this at the END of the update
+        CorrectCameraPosition();
+    }
+
+    void HandleMouse()
     {
         Zoom();
         //Leftklick
@@ -55,55 +49,51 @@ public class MouseManager : MonoBehaviour
         {
             RotateCamera();
         }
-        // Mousewheel
-        //Limits the CameraMovementSpace - The middle of the screen isnt allowed to got further than the last tile
-        Vector3 scrollfactor = Quaternion.Euler(0, cam.transform.eulerAngles.y,0) * new Vector3(0, 0, radius);
-        cam.transform.position = new Vector3(Mathf.Clamp(cam.transform.position.x, -camLimit.x -scrollfactor.x, camLimit.x - scrollfactor.x), cam.transform.position.y, Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z, camLimit.y - scrollfactor.z));
     }
+
 
     /*
      * This Method rotates the camera by an y-axis which runs throug the point, where the camera center hits y=0
+     * The Speed of the Rotation depends on the movement of the mouse and  rotationSpeed
      */
     void RotateCamera()
     {
-            //distance mod is a multiplier used for having the same camera-movement on the circle, independent of the circle distance
-            //TODO CHECK IF NECASSARY
-            float distance_mod = firstRadius / radius;
-            float mouse_x = Input.GetAxis("Mouse X") * Time.deltaTime * rotateSpeed * distance_mod;
+        float mouse_x = Input.GetAxis("Mouse X") * rotationSpeed;
             
-            //center of rotation is on distance of radius in front of camera-middle
-            Vector3 center = cam.transform.position + Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
-            cam.transform.eulerAngles += new Vector3(0, mouse_x, 0);
-            cam.transform.position = center - Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
+        // Rotation around y-Axis
+        // Center is the Centerpoint of the Circle, the Camera is moving on
+        Vector3 center = cam.transform.position + Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
+        cam.transform.eulerAngles += new Vector3(0, mouse_x, 0); //Angle Offset
+        // Position on the Circle depends on the new Y-Angle
+        cam.transform.position = center - Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
     }
 
     void MoveCamera()
     {
-        //TODO -> Feel of drag along the tiles -> Mouse should allways lie on the same tile while draging
-        Quaternion y_rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
-        Vector3 mouseMovement = new Vector3(Input.GetAxis("Mouse X") * Time.deltaTime * scrollstep, 0, Input.GetAxis("Mouse Y") * Time.deltaTime * scrollstep);
+        Quaternion y_rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0); //CurrentRotation of Camera ignoring the xz-Plane
+        Vector3 mouseMovement = new Vector3(Input.GetAxis("Mouse X") * scrollstep, 0, Input.GetAxis("Mouse Y") * scrollstep); //-Movement on xz-Plane
         cam.transform.position -=  y_rotation * mouseMovement;
     }
 
     void Zoom()
     {
-        //Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        //float distance = 0;
-        //if (zeroPlane.Raycast(ray, out distance))
-        //{
-            //radius = Mathf.Sqrt(Mathf.Pow(distance, 2) - Mathf.Pow(cam.transform.position.y, 2));
-        radius = Mathf.Tan(Mathf.Deg2Rad * (90 -cam.transform.eulerAngles.x)) * cam.transform.position.y;
-        //}
         float lastzoom = currentzoom;
-        //mouseScrollDelta.y is the amount of scrolling the mouse wheel forwards/backwards
-        //TODO -> Boundaries for camera movement
-        currentzoom = Mathf.Clamp(currentzoom +Input.mouseScrollDelta.y, minzoom, maxzoom);// Mathf.Min(Mathf.Max(currentzoom + Input.mouseScrollDelta.y, minzoom), maxzoom);
+        currentzoom = Mathf.Clamp(currentzoom +Input.mouseScrollDelta.y, minzoom, maxzoom);
+        //                          DeltaZoom              *            Zoomspeed in current Camera-direction
         cam.transform.position += (currentzoom - lastzoom) * (cam.transform.localRotation * new Vector3(0, 0, zoomstep));
+        UpdateRadius();
+
+    }
+
+    void UpdateRadius()
+    {
+        // Calculates the Radius of the circle on which the camera moves. It is calculated as follows: radius = tan(alpha) * height
+        // The Hypothenuse is a line from the camera to the focus point on y=0 of the camera
+        radius = Mathf.Tan(Mathf.Deg2Rad * (90 - cam.transform.eulerAngles.x)) * cam.transform.position.y;
     }
 
     void SelectObject()
     {
-        
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -111,5 +101,14 @@ public class MouseManager : MonoBehaviour
             {
                 Debug.Log(hit.collider.gameObject.name);
             }
+    }
+
+    void CorrectCameraPosition()
+    {
+        // Limits the CameraMovementSpace. The Camera can go over the border of half of the current radius
+        Vector3 scrollfactor = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
+        float xCorrection = Mathf.Clamp(cam.transform.position.x, -camLimit.x - scrollfactor.x + radius / 2f, camLimit.x - scrollfactor.x - radius / 2f);
+        float zCorrection = Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z + radius / 2f, camLimit.y - scrollfactor.z - radius / 2f);
+        cam.transform.position = new Vector3(xCorrection, cam.transform.position.y, zCorrection);
     }
 }
