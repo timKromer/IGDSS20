@@ -11,12 +11,16 @@ public class MouseManager : MonoBehaviour
 
     //Set by the gamemanager -> The borders of the map
     public Vector2 camLimit;
+    //Limits the vertical rotation of the camera
+    public Vector2 vRotLimit = new Vector2(40, 90);
 
     private float minzoom = 0; 
     private float maxzoom = 10;
     private float currentzoom = 5;
+    // Radius is a horizontal radius, used to move the MapBorders
     private float radius;
-
+    //vradius is the radius used for rotating the camera around the focus point on the (y=0)-Plane
+    private float vradius;
 
     // Start is called before the first frame update
     void Start()
@@ -59,13 +63,16 @@ public class MouseManager : MonoBehaviour
     void RotateCamera()
     {
         float mouse_x = Input.GetAxis("Mouse X") * rotationSpeed;
-            
-        // Rotation around y-Axis
-        // Center is the Centerpoint of the Circle, the Camera is moving on
-        Vector3 center = cam.transform.position + Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
-        cam.transform.eulerAngles += new Vector3(0, mouse_x, 0); //Angle Offset
-        // Position on the Circle depends on the new Y-Angle
-        cam.transform.position = center - Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
+        float mouse_y = Input.GetAxis("Mouse Y") * rotationSpeed;
+
+        // The center of the sphere on which the Camera is placed
+        Vector3 center = cam.transform.position + cam.transform.rotation * new Vector3(0, 0, vradius);//Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius) - new Vector3(0, cam.transform.position.y, 0);
+        Vector3 oldEuler = cam.transform.eulerAngles;
+
+        //Orienting and repositioning of the camera
+        cam.transform.eulerAngles = new Vector3(Mathf.Clamp(oldEuler.x-mouse_y, vRotLimit.x, vRotLimit.y), oldEuler.y + mouse_x, oldEuler.z);
+        cam.transform.position = center - cam.transform.rotation * new Vector3(0, 0, vradius);
+        UpdateRadius();
     }
 
     void MoveCamera()
@@ -75,6 +82,9 @@ public class MouseManager : MonoBehaviour
         cam.transform.position -=  y_rotation * mouseMovement;
     }
 
+
+    //This Method makes the Players view zooming, by moving the Camera in the Direction it currently is focused on.
+    // Because we zoom like this we can change the FieldOfView as we wish
     void Zoom()
     {
         float lastzoom = currentzoom;
@@ -90,6 +100,7 @@ public class MouseManager : MonoBehaviour
         // Calculates the Radius of the circle on which the camera moves. It is calculated as follows: radius = tan(alpha) * height
         // The Hypothenuse is a line from the camera to the focus point on y=0 of the camera
         radius = Mathf.Tan(Mathf.Deg2Rad * (90 - cam.transform.eulerAngles.x)) * cam.transform.position.y;
+        vradius = Mathf.Sqrt(Mathf.Pow(cam.transform.position.y, 2) + Mathf.Pow(radius, 2));
     }
 
     void SelectObject()

@@ -327,9 +327,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 512232609}
   zoomstep: 10
-  scrollstep: 10
+  scrollstep: 2
   rotationSpeed: 1
   camLimit: {x: 100, y: 100}
+  vRotLimit: {x: 40, y: 90}
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
