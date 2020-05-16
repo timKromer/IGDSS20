@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class MouseManager : MonoBehaviour
@@ -84,7 +85,7 @@ public class MouseManager : MonoBehaviour
 
 
     //This Method makes the Players view zooming, by moving the Camera in the Direction it currently is focused on.
-    // Because we zoom like this we can change the FieldOfView as we wish
+    // Because we zoom like this we can change the FieldOfView as we wish without an impact on the zoom mechanic
     void Zoom()
     {
         float lastzoom = currentzoom;
@@ -105,13 +106,19 @@ public class MouseManager : MonoBehaviour
 
     void SelectObject()
     {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit))
+        {
+            GameObject hitted = hit.collider.gameObject;
+            // If the decoration of a Tile is hit, it has a parent, so the parentobject is choosen instead
+            if (hitted.transform.parent)
             {
-                Debug.Log(hit.collider.gameObject.name);
+                hitted = hitted.transform.parent.gameObject;
             }
+            Debug.Log(hitted.name);
+        }
     }
 
     void CorrectCameraPosition()

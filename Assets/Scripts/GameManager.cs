@@ -13,10 +13,11 @@ public class GameManager : MonoBehaviour
     public GameObject forest;
     public GameObject stone;
     public GameObject mountain;
-    public MouseManager mouse;
+    public MouseManager mouseManager;
 
     // Sets the HeightScaling for the Interpretation of the heightmaps (max Value of Heightmap = 1)
-    public float h_mult = 20;
+    // Is choosen according to our zooming-function
+    private float h_mult = 20;
 
     // Start is called before the first frame update
     void Start()
@@ -37,14 +38,14 @@ public class GameManager : MonoBehaviour
         {
             for (int z = 0; z < heightmap.height; z++)
             {
-                float height = heightmap.GetPixel(x - 1, z - 1).grayscale;
+                float height = heightmap.GetPixel(z, x).r;
                 float xpos = -xLim + (x) * xmult;
                 float zpos = -zLim + z * multiplier + ((multiplier / 2f) * (x % 2));
                 Instantiate(HeightToTile(height), new Vector3(xpos, h_mult * height, zpos), Quaternion.identity);
             }
         }
         //This sets the size of the terrain
-        mouse.camLimit = new Vector2(xLim, zLim);
+        mouseManager.camLimit = new Vector2(xLim, zLim);
     }
 
     // Returns a Prefab depending on give height
