@@ -266,8 +266,8 @@ public class GameManager : MonoBehaviour
     private List<Tile> FindNeighborsOfTile(Tile t)
     {
         List<Tile> result = new List<Tile>();
-        int i = t._coordinateWidth;
         int j = t._coordinateHeight;
+        int i = t._coordinateWidth;
         //TODO: put all neighbors in the result list
         //grundsätzliches Muster
         if (j > 0)
@@ -275,21 +275,21 @@ public class GameManager : MonoBehaviour
             //Above Neighbours
             if (i + j % 2 > 0)
             {
-                result.Add(_tileMap[i - 1 + (j % 2), j - 1]);
+                result.Add(_tileMap[j - 1, i - 1 + (j % 2)]);
             }
             if (i + j % 2 < _tileMap.GetLength(0))
             {
-                result.Add(_tileMap[i + (j % 2), j - 1]);
+                result.Add(_tileMap[j - 1, i + (j % 2)]);
             }
         }
         //BesideNeighbours
         if (i > 0)
         {
-            result.Add(_tileMap[i - 1, j]);
+            result.Add(_tileMap[j, i - 1]);
         }
         if (i < _tileMap.GetLength(0) - 1)
         {
-            result.Add(_tileMap[i + 1, j]);
+            result.Add(_tileMap[j, i + 1]);
         }
 
         if (j < _tileMap.GetLength(1) - 1)
@@ -297,11 +297,11 @@ public class GameManager : MonoBehaviour
             //Below Neighbours
             if (i + j % 2 > 0)
             {
-                result.Add(_tileMap[i - 1 + (j % 2), j + 1]);
+                result.Add(_tileMap[j + 1, i - 1 + (j % 2)]);
             }
             if (i + j % 2 < _tileMap.GetLength(0))
             {
-                result.Add(_tileMap[i + (j % 2), j + 1]);
+                result.Add(_tileMap[j + 1, i + (j % 2)]);
             }
         }
         return result;

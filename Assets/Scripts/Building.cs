@@ -72,7 +72,7 @@ public class Building : MonoBehaviour
             {
                 GetNeededResources();
                 _producing = true;
-                Debug.Log("Begun Production Cycle");
+                //Debug.Log("Begun Production Cycle");
             }
             else
             {
@@ -85,12 +85,17 @@ public class Building : MonoBehaviour
             if (_timeSinceLastProduction >= _resourceGenerationInterval)
             {
                 //End ProductionCycle
-                _warehouse[_outputResource] += 1;
-                Debug.Log("Ended Production Cycle:"+ _warehouse[_outputResource]);
+                _warehouse[_outputResource] += _outputCount;
+                //Debug.Log("Ended Production Cycle:"+ _warehouse[_outputResource]);
                 _producing = false;
                 _timeSinceLastProduction -= _resourceGenerationInterval;
             }
         }
+    }
+
+    bool ScaleTest(Tile tile)
+    {
+        return (tile._type == _efficiencyScalesWithNeighbouringTiles && tile._building == null);
     }
 
     void DetermineProductionScaling()
@@ -102,22 +107,17 @@ public class Building : MonoBehaviour
             return;
         }
         //Determine number of scaling-Tiles
-        int scalingTiles = 0;
-        foreach (Tile tile in _tile._neighborTiles)
-        {
-            if (tile._type == _efficiencyScalesWithNeighbouringTiles)
-            {
-                scalingTiles += 1;
-            }
-        }
+        List<Tile> scalingTiles = _tile._neighborTiles.FindAll(ScaleTest);
+        int nr_scaling = scalingTiles.Count;
+        Debug.Log(this.name + " " + nr_scaling);
         //Set efficiencyValue
-        if (scalingTiles < _minimumNeighbours)
+        if (nr_scaling < _minimumNeighbours)
         {
             _efficiencyValue = 0;
         }
         else
         {
-            _efficiencyValue = (((float)_maximumNeighbours) / Mathf.Min(scalingTiles, _maximumNeighbours));
+            _efficiencyValue = (((float)_maximumNeighbours) / Mathf.Min(nr_scaling, _maximumNeighbours));
         }
     }
 }
