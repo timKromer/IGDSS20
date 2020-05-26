@@ -532,15 +532,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   heightmap: {fileID: 2800000, guid: 6c8b8b5dee9104b429f737ec1d927ec9, type: 3}
-  water: {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
-  sand: {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
-  grass: {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c, type: 3}
-  forest: {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d, type: 3}
-  stone: {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9, type: 3}
-  mountain: {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b,
-    type: 3}
   mouseManager: {fileID: 834136086}
-  h_mult: 20
+  _tiles:
+  - {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
+  - {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
+  - {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c, type: 3}
+  - {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d, type: 3}
+  - {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9, type: 3}
+  - {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b, type: 3}
+  _buildingPrefabs:
+  - {fileID: 5325358900441391777, guid: 99a605cd38e80ee4e80f071e0995de4d, type: 3}
+  - {fileID: 8308836880233739014, guid: 793db45626c66174d89c3e832a6bc1e4, type: 3}
+  - {fileID: 8308836880233739014, guid: 793db45626c66174d89c3e832a6bc1e4, type: 3}
+  - {fileID: 5325358900441391777, guid: 99a605cd38e80ee4e80f071e0995de4d, type: 3}
+  - {fileID: 8308836880233739014, guid: 793db45626c66174d89c3e832a6bc1e4, type: 3}
+  - {fileID: 5325358900441391777, guid: 99a605cd38e80ee4e80f071e0995de4d, type: 3}
+  - {fileID: 8308836880233739014, guid: 793db45626c66174d89c3e832a6bc1e4, type: 3}
+  _selectedBuildingPrefabIndex: 0
+  _ResourcesInWarehouse_Fish: 0
+  _ResourcesInWarehouse_Wood: 0
+  _ResourcesInWarehouse_Planks: 0
+  _ResourcesInWarehouse_Wool: 0
+  _ResourcesInWarehouse_Clothes: 0
+  _ResourcesInWarehouse_Potato: 0
+  _ResourcesInWarehouse_Schnapps: 0
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0

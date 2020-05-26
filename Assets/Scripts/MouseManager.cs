@@ -22,6 +22,7 @@ public class MouseManager : MonoBehaviour
     private float radius;
     //vradius is the radius used for rotating the camera around the focus point on the (y=0)-Plane
     private float vradius;
+    private GameManager _gameManager;
 
     // Start is called before the first frame update
     void Start()
@@ -92,8 +93,10 @@ public class MouseManager : MonoBehaviour
         currentzoom = Mathf.Clamp(currentzoom +Input.mouseScrollDelta.y, minzoom, maxzoom);
         //                          DeltaZoom              *            Zoomspeed in current Camera-direction
         cam.transform.position += (currentzoom - lastzoom) * (cam.transform.localRotation * new Vector3(0, 0, zoomstep));
-        UpdateRadius();
-
+        if (lastzoom != currentzoom)
+        {
+            UpdateRadius();
+        }
     }
 
     void UpdateRadius()
@@ -117,7 +120,13 @@ public class MouseManager : MonoBehaviour
             {
                 hitted = hitted.transform.parent.gameObject;
             }
-            Debug.Log(hitted.name);
+            // Debug.Log(hitted.name + " | " + hitted.GetComponent<Tile>()._type);
+            Tile t = hitted.GetComponent<Tile>();
+            if (t)
+            {
+                _gameManager.TileClicked(t._coordinateHeight, t._coordinateWidth);
+            }
+
         }
     }
 
@@ -125,8 +134,15 @@ public class MouseManager : MonoBehaviour
     {
         // Limits the CameraMovementSpace. The Camera can go over the border of half of the current radius
         Vector3 scrollfactor = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * new Vector3(0, 0, radius);
-        float xCorrection = Mathf.Clamp(cam.transform.position.x, -camLimit.x - scrollfactor.x + radius / 2f, camLimit.x - scrollfactor.x - radius / 2f);
-        float zCorrection = Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z + radius / 2f, camLimit.y - scrollfactor.z - radius / 2f);
+        float xCorrection = Mathf.Clamp(cam.transform.position.x, -camLimit.x - scrollfactor.x, camLimit.x - scrollfactor.x);
+        float zCorrection = Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z, camLimit.y - scrollfactor.z);
+        //float xCorrection = Mathf.Clamp(cam.transform.position.x, -camLimit.x - scrollfactor.x + radius / 2f, camLimit.x - scrollfactor.x - radius / 2f);
+        //float zCorrection = Mathf.Clamp(cam.transform.position.z, -camLimit.y - scrollfactor.z + radius / 2f, camLimit.y - scrollfactor.z - radius / 2f);
         cam.transform.position = new Vector3(xCorrection, cam.transform.position.y, zCorrection);
+    }
+
+    public void SetGameManager(GameManager gm)
+    {
+        _gameManager = gm;
     }
 }
