@@ -117,7 +117,7 @@ public class Building : MonoBehaviour
         }
         else
         {
-            _efficiencyValue = (((float)_maximumNeighbours) / Mathf.Min(nr_scaling, _maximumNeighbours));
+            _efficiencyValue = ((Mathf.Min(nr_scaling, _maximumNeighbours)) / (float)_maximumNeighbours);
         }
     }
 }
