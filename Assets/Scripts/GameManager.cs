@@ -9,8 +9,7 @@ public class GameManager : MonoBehaviour
     public Texture2D heightmap;
     public MouseManager mouseManager;
     public GameObject[] _tiles;
-    private Tile[,] _tileMap; //2D array of all spawned tiles
-    //MoneyManagement
+    private Tile[,] _tileMap;
     public int _money = 0;
     int _sumUpkeep = 0;
 
@@ -124,7 +123,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _productionCycle = Time.time;
+        _productionCycle = 0;
         GenerateMap();
         PopulateResourceDictionary();
     }
@@ -134,14 +133,14 @@ public class GameManager : MonoBehaviour
     {
         HandleKeyboardInput();
         UpdateInspectorNumbersForResources();
-        UpdateMoney();
+        EconomyCycle();
     }
     #endregion
 
     #region Methods
-    void UpdateMoney()
+    void EconomyCycle()
     {
-        int tick = 5;
+        int tick = 60;
         _productionCycle += Time.deltaTime;
         //When money-cycle ends
         if(_productionCycle >= tick)
@@ -232,7 +231,6 @@ public class GameManager : MonoBehaviour
     public void TileClicked(int height, int width)
     {
         Tile t = _tileMap[height, width];
-        Debug.Log(t._type + " " + height + " " + width);
         if (t._building == null)
         {
             PlaceBuildingOnTile(t);
@@ -245,9 +243,9 @@ public class GameManager : MonoBehaviour
         //if there is building prefab for the number input
         if (_selectedBuildingPrefabIndex < _buildingPrefabs.Length)
         {
-            //TODO: check if building can be placed and then istantiate it
             Building building = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
             bool enoughMats = _money >= building._buildCostMoney && _resourcesInWarehouse[ResourceTypes.Planks] >= building._buildCostPlanks;
+            // if we can build Building on this Tile
             if (building._canBeBuiltOnTileTypes.Contains(t._type) && enoughMats)
             {
                 Building instanciated = Instantiate(_buildingPrefabs[_selectedBuildingPrefabIndex], t.transform.position, Quaternion.identity).GetComponent<Building>();
@@ -257,8 +255,16 @@ public class GameManager : MonoBehaviour
                 _sumUpkeep += instanciated._upkeep;
                 _money -= building._buildCostMoney;
                 _resourcesInWarehouse[ResourceTypes.Planks] -= building._buildCostPlanks;
+                instanciated.DetermineProductionScaling();
+                // Refresh the _efficiencyValue of all neighbouring buildings
+                foreach (Tile neighbour in t._neighborTiles)
+                {
+                    if (neighbour._building != null)
+                    {
+                        neighbour._building.DetermineProductionScaling();
+                    }
+                }
             }
-
         }
     }
 
@@ -268,11 +274,9 @@ public class GameManager : MonoBehaviour
         List<Tile> result = new List<Tile>();
         int j = t._coordinateHeight;
         int i = t._coordinateWidth;
-        //TODO: put all neighbors in the result list
-        //grundsätzliches Muster
+        //Above Neighbours
         if (j > 0)
         {
-            //Above Neighbours
             if (i + j % 2 > 0)
             {
                 result.Add(_tileMap[j - 1, i - 1 + (j % 2)]);
@@ -291,10 +295,9 @@ public class GameManager : MonoBehaviour
         {
             result.Add(_tileMap[j, i + 1]);
         }
-
+        //Below Neighbours
         if (j < _tileMap.GetLength(1) - 1)
         {
-            //Below Neighbours
             if (i + j % 2 > 0)
             {
                 result.Add(_tileMap[j + 1, i - 1 + (j % 2)]);

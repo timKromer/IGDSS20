@@ -28,23 +28,19 @@ public class Building : MonoBehaviour
     private float _timeSinceLastProduction = 0;
     private bool _producing = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {
         ProductionCycle();
     }
 
+    // Is used in the Gamemanager to connect the warehouse system to each building
     public void SetWareHouse(Dictionary<GameManager.ResourceTypes, float> wh)
     {
         _warehouse = wh;
     }
 
+    // Returns true if all needed Resources (for beginning production) are avaible in the warehouse
     bool CheckNeededResources()
     {
         bool gotResources = true;
@@ -55,6 +51,7 @@ public class Building : MonoBehaviour
         return gotResources;
     }
 
+    // Decrements all Resources needed for producing
     void GetNeededResources()
     {
         foreach (GameManager.ResourceTypes resource in _inputResources)
@@ -65,14 +62,12 @@ public class Building : MonoBehaviour
 
     void ProductionCycle()
     {
-        DetermineProductionScaling();
         if (!_producing)
         {
             if (CheckNeededResources())
             {
                 GetNeededResources();
                 _producing = true;
-                //Debug.Log("Begun Production Cycle");
             }
             else
             {
@@ -82,35 +77,35 @@ public class Building : MonoBehaviour
         if (_producing)
         {
             _timeSinceLastProduction += Time.deltaTime * _efficiencyValue;
+            //End ProductionCycle
             if (_timeSinceLastProduction >= _resourceGenerationInterval)
             {
-                //End ProductionCycle
                 _warehouse[_outputResource] += _outputCount;
-                //Debug.Log("Ended Production Cycle:"+ _warehouse[_outputResource]);
-                _producing = false;
                 _timeSinceLastProduction -= _resourceGenerationInterval;
+                _producing = false;
             }
         }
     }
 
+    // Returns if a given tile increases the scaling
+    //  -> needed tile type and nothing build on it
     bool ScaleTest(Tile tile)
     {
         return (tile._type == _efficiencyScalesWithNeighbouringTiles && tile._building == null);
     }
 
-    void DetermineProductionScaling()
+    // Determines and sets the _efficiencyValue
+    public void DetermineProductionScaling()
     {
-        //Building doesnt scale
+        // if this building has no scaling property
         if (_maximumNeighbours == 0)
         {
             _efficiencyValue = 1f;
             return;
         }
-        //Determine number of scaling-Tiles
-        List<Tile> scalingTiles = _tile._neighborTiles.FindAll(ScaleTest);
-        int nr_scaling = scalingTiles.Count;
-        Debug.Log(this.name + " " + nr_scaling);
-        //Set efficiencyValue
+        // Determine number of scaling-Tiles
+        int nr_scaling = _tile._neighborTiles.FindAll(ScaleTest).Count;
+        // Set _efficiencyValue depending on nr_scaling and scaling properties
         if (nr_scaling < _minimumNeighbours)
         {
             _efficiencyValue = 0;

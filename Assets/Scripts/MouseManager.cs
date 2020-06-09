@@ -120,7 +120,6 @@ public class MouseManager : MonoBehaviour
             {
                 hitted = hitted.transform.parent.gameObject;
             }
-            // Debug.Log(hitted.name + " | " + hitted.GetComponent<Tile>()._type);
             Tile t = hitted.GetComponent<Tile>();
             if (t)
             {
