@@ -4,6 +4,19 @@ using UnityEngine;
 
 public abstract class Building : MonoBehaviour
 {
+    #region Basic Attributes
+    public string _type; //The name of the building
+    public float _upkeep; //The money cost per minute
+    public float _buildCostMoney; //placement money cost
+    public float _buildCostPlanks; //placement planks cost
+    public Tile _tile; //Reference to the tile it is built on
+    protected List<Tile> _neighborTiles; //List of all neighboring tiles, derived from _tile
+    #endregion
+
+    #region Tile Restrictions
+    public List<Tile.TileTypes> _canBeBuiltOnTileTypes; //A list that defines all types of tiles it can be placed on. Increase the number in the inspector and then choose from the drop-down menu
+    #endregion
+
     #region Manager References
     JobManager _jobManager; //Reference to the JobManager
     #endregion
@@ -26,6 +39,14 @@ public abstract class Building : MonoBehaviour
     public void WorkerRemovedFromBuilding(Worker w)
     {
         _workers.Remove(w);
+    }
+    #endregion
+
+    #region MonoBehaviour
+    // Start is called before the first frame update
+    protected virtual void Start()
+    {
+        _neighborTiles = _tile._neighborTiles;
     }
     #endregion
 }
