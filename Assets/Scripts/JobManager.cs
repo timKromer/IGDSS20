@@ -42,6 +42,11 @@ public class JobManager : MonoBehaviour
         _unoccupiedWorkers.Add(w);
     }
 
+    public bool IsEmployed(Worker worker)
+    {
+        return !_unoccupiedWorkers.Contains(worker);
+    }
+
 
 
     public void RemoveWorker(Worker w)

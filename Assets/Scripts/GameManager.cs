@@ -1,12 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class GameManager : MonoBehaviour
 {
     #region Manager References
     public static GameManager Instance; //Singleton of this manager. Can be called with static reference GameManager.Instance
     private MouseManager _mouseManager; //Reference to MouseManager.Instance
+    #endregion
+
+    # region Game state
+    private float _year = 0;
+    public float Year => _year;
     #endregion
 
     #region Map generation
@@ -53,6 +58,22 @@ public class GameManager : MonoBehaviour
     private float _ResourcesInWarehouse_Schnapps;
     #endregion
 
+    #region Population needs (consumption per year)
+    private Dictionary<ResourceTypes, float> _workerNeedsPerYear = new Dictionary<ResourceTypes, float>()
+    {
+        {ResourceTypes.Fish, 365},
+        {ResourceTypes.Clothes, 2},
+        {ResourceTypes.Schnapps, 10}
+    };
+
+    private Dictionary<ResourceTypes, float> _needSatisfaction = new Dictionary<ResourceTypes, float>()
+    {
+        {ResourceTypes.Fish, 1},
+        {ResourceTypes.Clothes, 1},
+        {ResourceTypes.Schnapps, 1},
+    };
+    #endregion
+
     #region Enumerations
     public enum ResourceTypes { None, Fish, Wood, Planks, Wool, Clothes, Potato, Schnapps }; //Enumeration of all available resource types. Can be addressed from other scripts by calling GameManager.ResourceTypes
     #endregion
@@ -85,12 +106,51 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         HandleKeyboardInput();
+        UpdateGameTime();
         UpdateEconomyTimer();
         UpdateInspectorNumbersForResources();
+        ConsumeResources();
     }
     #endregion
 
     #region Methods
+    private void UpdateGameTime()
+    {
+        _year += timeOfAYearPassed();
+    }
+    public float getNeedSatisfaction(ResourceTypes resourceType)
+    {
+        return _needSatisfaction[resourceType];
+    }
+    void ConsumeResources()
+    {
+      foreach(KeyValuePair<ResourceTypes, float> need in _workerNeedsPerYear)
+      {
+          ConsumeResource(need.Key, timeOfAYearPassed() * need.Value);
+      }
+    }
+
+    public float timeOfAYearPassed()
+    {
+        return Time.deltaTime / 15;
+    }
+
+    void ConsumeResource(ResourceTypes resourceType, float amount)
+    {
+        float currentAmount = _resourcesInWarehouse[resourceType];
+        float newAmount = currentAmount - amount;
+
+        _resourcesInWarehouse[resourceType] =  Math.Max(newAmount, 0);
+
+        float currentSatisfaction = 1;
+        if (newAmount < 0) {
+            currentSatisfaction = 1 - (Math.Abs(newAmount) / amount);
+        }
+
+        _needSatisfaction[resourceType] =_needSatisfaction[resourceType]
+            * (1 - timeOfAYearPassed()) + currentSatisfaction * timeOfAYearPassed();
+    }
+
     //Makes the resource dictionary usable by populating the values and keys
     void PopulateResourceDictionary()
     {
