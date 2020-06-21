@@ -52,6 +52,7 @@ MonoBehaviour:
   _buildCostPlanks: 2
   _tile: {fileID: 0}
   _canBeBuiltOnTileTypes: 03000000
+  _workers: []
   _efficiencyScalesWithNeighboringTiles: 3
   _minimumNeighbors: 1
   _maximumNeighbors: 4
@@ -64,6 +65,7 @@ MonoBehaviour:
   _hasInputResource2: 0
   _progressPercent: 0
   _efficiency: 0
+  numberOfJobsToOffer: 10
 --- !u!1001 &296969190873250211
 PrefabInstance:
   m_ObjectHideFlags: 0

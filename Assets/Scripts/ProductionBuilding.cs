@@ -26,6 +26,7 @@ public class ProductionBuilding : Building
     public bool _hasInputResource2; //Signals that material 2 has been deliverd to this building
     public float _progressPercent; //The _generationProgress on a scale from 0 to 100 %. Only for display.
     public float _efficiency; //The calculated efficiency value, based on the _efficiencyScalesWithNeighboringTiles parameter.
+    public int numberOfJobsToOffer;
     #endregion
 
 
@@ -39,13 +40,50 @@ public class ProductionBuilding : Building
 
     protected new void Start() {
         base.Start();
+        CreateJobs();
     }
     #endregion
     
 
     #region Methods
+    void CreateJobs()
+    {
+        int alreadyPublishedJobOffers = 0;
+        while (alreadyPublishedJobOffers < numberOfJobsToOffer)
+        {
+            _jobs.Add(new Job(this));
+        }
+
+        base.PublishJobOffers();
+
+    }
     void UpdateEfficiency()
     {
+        _efficiency = 0.6f * ComputeTileEfficiency()
+            + 0.3f * ComputeWorkCapacity()
+            + 0.1f * ComputeWorkerHappiness() * 100;;
+
+    }
+
+    private float ComputeWorkerHappiness()
+    {
+        float happinessSum = 0;
+        foreach (Worker worker in _workers)
+        {
+            happinessSum += worker.Happiness;
+        }
+
+        return happinessSum / _workers.Count;
+    }
+
+    private float ComputeWorkCapacity()
+    {
+        return _workers.Count / numberOfJobsToOffer * 100f;
+    }
+
+    private float ComputeTileEfficiency()
+    {
+        float tileEfficieny = 100f;
         _neighborTiles = _tile._neighborTiles;
 
         //If the building scales with neighboring tiles
@@ -56,23 +94,17 @@ public class ProductionBuilding : Building
             int count = fittingNeighbors.Count;
 
             float efficiencySteps = 100f / _maximumNeighbors;
-            _efficiency = count * efficiencySteps;
+            tileEfficieny = count * efficiencySteps;
 
-            if (_efficiency > 100)
-            {
-                _efficiency = 100;
-            }
+            tileEfficieny = Mathf.Min(_efficiency, 100);
 
             if (count < _minimumNeighbors)
             {
-                _efficiency = 0;
+                tileEfficieny = 0;
             }
         }
-        else
-        {
-            _efficiency = 100;
-        }
 
+        return tileEfficieny;
     }
 
     void HandleResourceGeneration()

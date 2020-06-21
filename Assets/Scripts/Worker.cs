@@ -85,6 +85,7 @@ public class Worker : MonoBehaviour
 
     private void Die()
     {
+        _jobManager.RemoveWorker(this);
         Destroy(this.gameObject, 1f);
     }
 }

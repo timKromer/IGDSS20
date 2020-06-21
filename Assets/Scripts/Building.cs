@@ -31,6 +31,13 @@ public abstract class Building : MonoBehaviour
     
 
     #region Methods   
+    protected void PublishJobOffers()
+    {
+        foreach (Job job in _jobs)
+        {
+            _jobManager.InsertJobOffer(job);
+        }
+    }
     public void WorkerAssignedToBuilding(Worker w)
     {
         _workers.Add(w);
@@ -47,6 +54,7 @@ public abstract class Building : MonoBehaviour
     protected virtual void Start()
     {
         _neighborTiles = _tile._neighborTiles;
+        PublishJobOffers();
     }
     #endregion
 }
